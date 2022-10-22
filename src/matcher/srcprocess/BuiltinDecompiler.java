@@ -7,7 +7,7 @@ public enum BuiltinDecompiler {
 	FERNFLOWER("Fernflower", Fernflower::new),
 	PROCYON("Procyon", Procyon::new);
 
-	private BuiltinDecompiler(String name, Supplier<? extends Decompiler> supplier) {
+	BuiltinDecompiler(String name, Supplier<? extends Decompiler> supplier) {
 		this.name = name;
 		this.supplier = supplier;
 	}
