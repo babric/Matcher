@@ -91,8 +91,10 @@ public class FieldInfoTab extends Tab implements IGuiComponent {
 	}
 
 	@Override
-	public void onViewChange() {
-		update(selectionProvider.getSelectedField());
+	public void onViewChange(ViewChangeCause cause) {
+		if (cause == ViewChangeCause.NAME_TYPE_CHANGED) {
+			update(selectionProvider.getSelectedField());
+		}
 	}
 
 	private void update(FieldInstance field) {
@@ -139,7 +141,7 @@ public class FieldInfoTab extends Tab implements IGuiComponent {
 			sigLabel.setText(asmNode == null || asmNode.signature == null ? "-" : asmNode.signature);
 
 			parentLabel.setText(!field.getParents().isEmpty() ? formatClass(field.getParents(), nameType) : "-");
-			childLabel.setText(!field.isFinal() ?  formatClass(field.getChildren(), nameType) : "-");
+			childLabel.setText(!field.isFinal() ? formatClass(field.getChildren(), nameType) : "-");
 
 			readRefLabel.setText(format(field.getReadRefs(), nameType));
 			writeRefLabel.setText(format(field.getWriteRefs(), nameType));

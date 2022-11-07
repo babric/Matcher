@@ -40,6 +40,9 @@ import javafx.stage.Window;
 
 import matcher.Matcher;
 import matcher.NameType;
+import matcher.config.Config;
+import matcher.config.Theme;
+import matcher.gui.IGuiComponent.ViewChangeCause;
 import matcher.gui.menu.MainMenuBar;
 import matcher.srcprocess.BuiltinDecompiler;
 import matcher.type.ClassEnvironment;
@@ -87,9 +90,13 @@ public class Gui extends Application {
 			l.accept(this);
 		}
 
+		updateCss();
+
 		stage.setScene(scene);
 		stage.setTitle("Matcher");
 		stage.show();
+
+		border.requestFocus();
 	}
 
 	@Override
@@ -140,7 +147,7 @@ public class Gui extends Application {
 		this.sortKey = sortKey;
 
 		for (IGuiComponent c : components) {
-			c.onViewChange();
+			c.onViewChange(ViewChangeCause.SORTING_CHANGED);
 		}
 	}
 
@@ -154,7 +161,7 @@ public class Gui extends Application {
 		this.sortMatchesAlphabetically = value;
 
 		for (IGuiComponent c : components) {
-			c.onViewChange();
+			c.onViewChange(ViewChangeCause.SORTING_CHANGED);
 		}
 	}
 
@@ -168,7 +175,7 @@ public class Gui extends Application {
 		this.useClassTreeView = value;
 
 		for (IGuiComponent c : components) {
-			c.onViewChange();
+			c.onViewChange(ViewChangeCause.CLASS_TREE_VIEW_TOGGLED);
 		}
 	}
 
@@ -182,7 +189,20 @@ public class Gui extends Application {
 		this.showNonInputs = showNonInputs;
 
 		for (IGuiComponent c : components) {
-			c.onViewChange();
+			c.onViewChange(ViewChangeCause.SHOW_NON_INPUTS_TOGGLED);
+		}
+	}
+
+	public void updateCss() {
+		if (lastSwitchedToTheme != null) {
+			scene.getStylesheets().removeAll(lastSwitchedToTheme.getUrl().toExternalForm());
+		}
+
+		lastSwitchedToTheme = Config.getTheme();
+		scene.getStylesheets().add(lastSwitchedToTheme.getUrl().toExternalForm());
+
+		for (IGuiComponent c : components) {
+			c.onViewChange(ViewChangeCause.THEME_CHANGED);
 		}
 	}
 
@@ -196,7 +216,7 @@ public class Gui extends Application {
 		this.useDiffColors = useDiffColors;
 
 		for (IGuiComponent c : components) {
-			c.onViewChange();
+			c.onViewChange(ViewChangeCause.DIFF_COLORS_TOGGLED);
 		}
 	}
 
@@ -210,10 +230,9 @@ public class Gui extends Application {
 		this.nameType = value;
 
 		for (IGuiComponent c : components) {
-			c.onViewChange();
+			c.onViewChange(ViewChangeCause.NAME_TYPE_CHANGED);
 		}
 	}
-
 
 	public BuiltinDecompiler getDecompiler() {
 		return decompiler;
@@ -225,7 +244,7 @@ public class Gui extends Application {
 		this.decompiler = value;
 
 		for (IGuiComponent c : components) {
-			c.onViewChange();
+			c.onViewChange(ViewChangeCause.DECOMPILER_CHANGED);
 		}
 	}
 
@@ -367,8 +386,9 @@ public class Gui extends Application {
 			lastChooserFile = lastChooserFile.getParentFile();
 		}
 
-		if (lastChooserFile != null)
+		if (lastChooserFile != null) {
 			fileChooser.setInitialDirectory(lastChooserFile);
+		}
 
 		return fileChooser;
 	}
@@ -426,6 +446,7 @@ public class Gui extends Application {
 	private boolean useClassTreeView;
 	private boolean showNonInputs;
 	private boolean useDiffColors;
+	private Theme lastSwitchedToTheme;
 
 	private NameType nameType = NameType.MAPPED_PLAIN;
 	private BuiltinDecompiler decompiler = BuiltinDecompiler.CFR;

@@ -102,8 +102,10 @@ public class MethodInfoTab extends Tab implements IGuiComponent {
 	}
 
 	@Override
-	public void onViewChange() {
-		update(selectionProvider.getSelectedMethod());
+	public void onViewChange(ViewChangeCause cause) {
+		if (cause == ViewChangeCause.NAME_TYPE_CHANGED) {
+			update(selectionProvider.getSelectedMethod());
+		}
 	}
 
 	private void update(MethodInstance method) {
@@ -180,7 +182,6 @@ public class MethodInfoTab extends Tab implements IGuiComponent {
 	private static String getVarName(MethodVarInstance arg, NameType nameType) {
 		return arg.getIndex()+": "+getName(arg, nameType)+" ("+getName(arg.getType(), nameType)+")";
 	}
-
 
 	static String formatClass(Collection<? extends MemberInstance<?>> c, NameType nameType) {
 		return c.stream().map(v -> getName(v.getCls(), nameType)).sorted().collect(Collectors.joining("\n"));

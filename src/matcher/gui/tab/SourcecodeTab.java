@@ -17,7 +17,7 @@ import matcher.type.MethodInstance;
 
 public class SourcecodeTab extends WebViewTab {
 	public SourcecodeTab(Gui gui, ISelectionProvider selectionProvider, boolean unmatchedTmp) {
-		super("source", "ui/SourceCodeTemplate.htm");
+		super("source", "ui/templates/CodeViewTemplate.htm");
 
 		this.gui = gui;
 		this.selectionProvider = selectionProvider;
@@ -45,10 +45,13 @@ public class SourcecodeTab extends WebViewTab {
 	}
 
 	@Override
-	public void onViewChange() {
+	public void onViewChange(ViewChangeCause cause) {
 		ClassInstance cls = selectionProvider.getSelectedClass();
 
-		if (cls != null) {
+		if ((cls != null
+				&& (cause == ViewChangeCause.NAME_TYPE_CHANGED
+						|| cause == ViewChangeCause.DECOMPILER_CHANGED))
+				|| cause == ViewChangeCause.THEME_CHANGED) {
 			update(cls, true);
 		}
 	}
@@ -70,35 +73,34 @@ public class SourcecodeTab extends WebViewTab {
 		NameType nameType = gui.getNameType().withUnmatchedTmp(unmatchedTmp);
 
 		//Gui.runAsyncTask(() -> gui.getEnv().decompile(cls, true))
-		Gui.runAsyncTask(() -> SrcDecorator.decorate(gui.getEnv().decompile(gui.getDecompiler().get(), cls, nameType),
-				cls, nameType))
-		.whenComplete((res, exc) -> {
-			if (cDecompId == decompId) {
-				if (exc != null) {
-					exc.printStackTrace();
+		Gui.runAsyncTask(() -> SrcDecorator.decorate(gui.getEnv().decompile(gui.getDecompiler().get(), cls, nameType), cls, nameType))
+				.whenComplete((res, exc) -> {
+					if (cDecompId == decompId) {
+						if (exc != null) {
+							exc.printStackTrace();
 
-					StringWriter sw = new StringWriter();
-					exc.printStackTrace(new PrintWriter(sw));
+							StringWriter sw = new StringWriter();
+							exc.printStackTrace(new PrintWriter(sw));
 
-					if (exc instanceof SrcParseException) {
-						SrcParseException parseExc = (SrcParseException) exc;
-						displayText("parse error: "+parseExc.problems+"\ndecompiled source:\n"+parseExc.source);
-					} else {
-						displayText("decompile error: "+sw.toString());
+							if (exc instanceof SrcParseException) {
+								SrcParseException parseExc = (SrcParseException) exc;
+								displayText("parse error: "+parseExc.problems+"\ndecompiled source:\n"+parseExc.source);
+							} else {
+								displayText("decompile error: "+sw.toString());
+							}
+						} else {
+							double prevScroll = isRefresh ? getScrollTop() : 0;
+
+							displayHtml(res);
+
+							if (isRefresh && prevScroll > 0) {
+								setScrollTop(prevScroll);
+							}
+						}
+					} else if (exc != null) {
+						exc.printStackTrace();
 					}
-				} else {
-					double prevScroll = isRefresh ? getScrollTop() : 0;
-
-					displayHtml(res);
-
-					if (isRefresh && prevScroll > 0) {
-						setScrollTop(prevScroll);
-					}
-				}
-			} else if (exc != null) {
-				exc.printStackTrace();
-			}
-		});
+				});
 	}
 
 	@Override
