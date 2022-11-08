@@ -1,5 +1,5 @@
 plugins {
-	id 'java'
+	id 'java-library'
 	id 'application'
 	id 'maven-publish'
 	id "checkstyle"
@@ -60,15 +60,15 @@ javafx {
 }
 
 dependencies {
-	implementation "com.github.javaparser:javaparser-core:${javaparser_version}"
-	implementation "net.fabricmc:cfr:${fabric_cfr_version}"
-	implementation "net.fabricmc:fabric-fernflower:${fabric_fernflower_version}"
-	implementation "net.fabricmc:mapping-io:${mappingio_version}"
-	implementation "org.bitbucket.mstrobel:procyon-compilertools:${procyon_version}"
-	implementation "org.ow2.asm:asm:${asm_version}"
-	implementation "org.ow2.asm:asm-commons:${asm_version}"
-	implementation "org.ow2.asm:asm-tree:${asm_version}"
-	implementation "org.ow2.asm:asm-util:${asm_version}"
+	api "com.github.javaparser:javaparser-core:${javaparser_version}"
+	api "net.fabricmc:cfr:${fabric_cfr_version}"
+	api "net.fabricmc:fabric-fernflower:${fabric_fernflower_version}"
+	api "net.fabricmc:mapping-io:${mappingio_version}"
+	api "org.bitbucket.mstrobel:procyon-compilertools:${procyon_version}"
+	api "org.ow2.asm:asm:${asm_version}"
+	api "org.ow2.asm:asm-commons:${asm_version}"
+	api "org.ow2.asm:asm-tree:${asm_version}"
+	api "org.ow2.asm:asm-util:${asm_version}"
 
 	// JavaFX for all platforms (needed for cross-platform fat jar)
 	runtimeOnly "org.openjfx:javafx-base:${javafx_version}:win"
